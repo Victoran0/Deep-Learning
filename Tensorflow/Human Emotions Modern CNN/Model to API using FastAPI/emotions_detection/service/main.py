@@ -1,15 +1,23 @@
 # ONNX RUNTIME AND OPENCV HAS TO BE INSTALLE BEFORE WE CAN USE THIS CODES, WE HAVE TO BE IN A VIRTUAL ENRIRONMENT BEFORE WE CAN INSTALL THEm
 
+import onnxruntime as rt
 from fastapi import FastAPI
 from service.api.api import main_router
 
 app = FastAPI(project_name="emotions Detection")
 app.include_router(main_router)
-app.get('/')
+
+providers = ['CPUExecutionProvider']
+m_q = rt.InferenceSession(
+    "eff_quantized.onnx", providers=providers)
 
 
-def root():
+@app.get('/')
+async def root():
     return {'hello': 'world'}
+
+
+# The advantage of fastapi is that we can run our functions asynchronously. But in some CPU bound task such as Computer Vision, object detection, deep learning etc, async functions would not help us speed up time taken to run because they still have no run completely. In this case, we would make use of parrallelism. In parallelism, instead of having one CPU worker to run all the different tasks, we can allocate 3 workers, where each worker can focus on a given task. TO do this, we can simply use Gunicorn
 
 
 # from fastapi import FastAPI
